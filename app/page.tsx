@@ -3,7 +3,7 @@
 import { useRef, useState, type DragEvent, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
-import { ArrowRight, Link, Check, Circle, FileText, LoaderCircle } from "lucide-react";
+import { ArrowRight, Link, Check, Circle, FileText, LoaderCircle, RotateCcw } from "lucide-react";
 import type { Candidate } from "@/lib/candidate";
 import type { JobOffer } from "@/lib/job-offer";
 import type { Feedback, MatchAnalysis, MatchCategory } from "@/lib/matching";
@@ -78,6 +78,19 @@ export default function Home() {
     function handleDrop(event: DragEvent<HTMLLabelElement>) {
         event.preventDefault();
         selectFile(event.dataTransfer.files[0]);
+    }
+
+    function resetAnalysis() {
+        setUrl("");
+        setShowCvStep(false);
+        setAnalysisStep(null);
+        setAnalysisProgress(null);
+        setCvFile(null);
+        setError(null);
+        setJobOffer(null);
+        setCandidate(null);
+        setAnalysis(null);
+        setFeedback(null);
     }
 
     async function handleCvSubmit(event: FormEvent<HTMLFormElement>) {
@@ -354,6 +367,15 @@ export default function Home() {
                     ))}
                 </div>
             </section>}
+
+            {analysis && (
+                <div className="mt-8 flex w-full justify-center border-t pt-6">
+                    <Button type="button" variant="outline" onClick={resetAnalysis}>
+                        <RotateCcw />
+                        Sprawdź kolejną ofertę
+                    </Button>
+                </div>
+            )}
         </main>
     );
 }
