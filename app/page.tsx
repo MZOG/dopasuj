@@ -3,7 +3,7 @@
 import { useRef, useState, type DragEvent, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
-import { ArrowRight, Link, Check, Circle, FileText, LoaderCircle, RotateCcw } from "lucide-react";
+import { ArrowRight, Link, Check, Circle, FileText, Info, LoaderCircle, RotateCcw } from "lucide-react";
 import type { Candidate } from "@/lib/candidate";
 import type { JobOffer } from "@/lib/job-offer";
 import type { Feedback, MatchAnalysis, MatchCategory } from "@/lib/matching";
@@ -54,6 +54,7 @@ export default function Home() {
     const [candidate, setCandidate] = useState<Candidate | null>(null);
     const [analysis, setAnalysis] = useState<MatchAnalysis | null>(null);
     const [feedback, setFeedback] = useState<Feedback | null>(null);
+    const isAnalysisLocked = analysisProgress !== null && !error;
 
     async function handleJobSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -183,7 +184,7 @@ export default function Home() {
                         type="button"
                         variant="ghost"
                         size="sm"
-                        disabled={!!analysisStep}
+                        disabled={isAnalysisLocked}
                         onClick={() => {
                             setShowCvStep(false);
                             setAnalysisProgress(null);
@@ -201,23 +202,14 @@ export default function Home() {
             {error && <p role="alert" className="mt-3 text-center text-sm text-destructive">{error}</p>}
 
             {showCvStep && <>
-                <section aria-label="Oferta wybrana do analizy" className="mt-8 max-w-xl border-y py-5">
-                    <div className="flex items-center gap-3">
-                        <Link className="size-5 shrink-0 text-muted-foreground" />
-                        <div className="min-w-0">
-                            <h2 className="font-semibold">Oferta do analizy</h2>
-                            <p className="truncate text-sm text-muted-foreground">{url}</p>
-                        </div>
-                    </div>
-                </section>
-
-                <form onSubmit={handleCvSubmit} className="mt-2 w-full max-w-xl">
+                <form onSubmit={handleCvSubmit} className="w-full max-w-xl">
                     <h2 className="mb-3 text-lg font-semibold">Dodaj swoje CV</h2>
                     <input
                         ref={cvInputRef}
                         id="cv-upload"
                         className="sr-only"
                         type="file"
+                        disabled={isAnalysisLocked}
                         accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                         onChange={(event) => {
                             selectFile(event.currentTarget.files?.[0]);
@@ -247,11 +239,22 @@ export default function Home() {
                                     {cvFile.name.toLowerCase().endsWith(".pdf") ? "PDF" : "DOCX"} · CV gotowe do analizy
                                 </p>
                             </div>
-                            <Button type="button" variant="outline" onClick={() => cvInputRef.current?.click()}>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                disabled={isAnalysisLocked}
+                                onClick={() => cvInputRef.current?.click()}
+                            >
                                 Zamień CV
                             </Button>
                         </div>
                     )}
+                    <div role="note" className="mb-4 mt-5 flex items-start gap-3 rounded-md border border-amber-700/30 bg-amber-700/5 px-3 py-3 text-sm">
+                        <Info className="mt-0.5 size-4 shrink-0 text-amber-800" />
+                        <p>
+                            Przed analizą dokładnie sprawdź adres oferty i wybrane CV. Każde sprawdzenie dopasowania zużywa 1 kredyt.
+                        </p>
+                    </div>
                     <div className="mt-4 flex justify-center">
                         <Button type="submit" size="lg" className="px-5" disabled={!cvFile || !!analysisStep}>
                             {analysisStep ? "Analizuję..." : "Sprawdź dopasowanie"}
